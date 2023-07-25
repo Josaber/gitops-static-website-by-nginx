@@ -44,14 +44,14 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
       - name: Generate helm file
         run: |
           ./scripts/generate-helm-config-files
+          ./scripts/push-value-to-remote-repo
         env:
           GIT_API_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
-          SOURCE_FILE: "template/values-*.yaml"
-          DESTINATION_REPO: "Josaber/deployment-manifests"
+          SOURCE_FILE: "chart/values-*.yaml"
+          DESTINATION_REPO: "Josaber/gitops-deployment-manifests"
           USER_EMAIL: ${{ github.actor }}@users.noreply.github.com
           USER_NAME: ${{ github.actor }}
           DESTINATION_BRANCH: main

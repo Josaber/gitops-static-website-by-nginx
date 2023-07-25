@@ -1,0 +1,48 @@
+#!/bin/bash -e
+
+set -e
+# set -x
+cd $(dirname $0)/..
+source ./scripts/set-env-helpers
+
+ENV=${ENV:-test}
+
+if [ -z "${DESTINATION_BRANCH}" ]
+then
+  DESTINATION_BRANCH=main
+fi
+OUTPUT_BRANCH="${DESTINATION_BRANCH}"
+
+CLONE_DIR=$(mktemp -d)
+
+echo "Cloning destination git repository"
+git config --global user.email "${USER_EMAIL}"
+git config --global user.name "${USER_NAME}"
+git clone --single-branch --branch ${DESTINATION_BRANCH} "https://x-access-token:${GIT_API_TOKEN}@github.com/${DESTINATION_REPO}.git" "${CLONE_DIR}"
+
+echo "Copying contents to git repo"
+mkdir -p "${CLONE_DIR}/${APP_NAME}"
+cp -r ${SOURCE_FILE} "${CLONE_DIR}/${APP_NAME}"
+cd "${CLONE_DIR}"
+
+if [ ! -z "${DESTINATION_BRANCH_CREATE}" ]
+then
+  git checkout -b "${DESTINATION_BRANCH_CREATE}"
+  OUTPUT_BRANCH="${DESTINATION_BRANCH_CREATE}"
+fi
+
+if [ -z "${COMMIT_MESSAGE}" ]
+then
+  COMMIT_MESSAGE="Updated ${APP_NAME} ${ENV} with commit ${GITHUB_SHA}"
+fi
+
+echo "Adding git commit"
+git add .
+if git status | grep -q "Changes to be committed"
+then
+  git commit --message "${COMMIT_MESSAGE}"
+  echo "Pushing git commit"
+  git push -u origin HEAD:"${OUTPUT_BRANCH}"
+else
+  echo "No changes detected"
+fi
