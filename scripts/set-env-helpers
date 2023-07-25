@@ -1,0 +1,5 @@
+#!/bin/bash -e
+
+APP_NAME="static-website-by-nginx"
+GIT_HASH=$(git rev-parse --short HEAD)
+BRANCH_NAME=$(git branch --show-current)
