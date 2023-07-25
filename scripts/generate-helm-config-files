@@ -5,7 +5,7 @@ set -x
 cd $(dirname $0)/..
 source ./scripts/set-env-helpers
 
-ENV=${ENV:-${BRANCH_NAME}}
+ENV=${ENV:-test}
 RELEASE_TAG=${RELEASE_TAG:-sha-${GIT_HASH}}
 
 sed -e "s/__TAG__/${RELEASE_TAG}/g" \
